@@ -2,6 +2,11 @@
 
 This document defines how Soroban CrashLab is operated during Drips Wave cycles.
 
+## 🌊 Wave 3 Specific Context
+- **Contributor Limit**: Each contributor can resolve a maximum of **4 issues** across this entire org (down from 7 last wave). Keep an eye on assigning too many issues to a single applicant.
+- **Application Rejections**: Explicitly and quickly **reject** applicants who are not a fit or if we are waiting for a specific profile. Do not leave them pending; rejecting them immediately returns their application quota.
+- **24-Hour Review SLA Alert**: AI point appeals explicitly drop in when maintainers are unresponsive for >24 hours. Given our strict "Definition of Done", we risk automated points bypassing our review if we dawdle. Review inside 24h!
+
 ## Pre-wave checklist
 
 1. Validate that each candidate issue has scope, acceptance criteria, and complexity.
@@ -10,30 +15,32 @@ This document defines how Soroban CrashLab is operated during Drips Wave cycles.
    - `complexity:trivial|medium|high`
    - area labels such as `area:fuzzer`, `area:web`, `area:dx`
 3. Confirm issue dependencies are explicit.
-4. Keep at least 30 open issues available for contributor allocation.
+4. Keep an adequately sized open issue backlog ready for the new 4-issue org limit (i.e. more issues require spreading out to higher volume of distinct contributors).
 
 ## Assignment policy
 
-- prioritize first-time contributors on trivial and medium issues
-- avoid assigning one contributor to multiple high-complexity issues simultaneously
-- if no progress update is posted in 24 hours, request a status check
+- Prioritize first-time contributors on trivial and medium issues.
+- **Do not** assign more than 4 issues historically to the same contributor across the org.
+- Reject misaligned applications quickly using the Wave UI so contributors can reapply elsewhere.
+- If no progress update is posted in 24 hours, request a status check and un-assign if unresponsive.
 
 ## PR review policy
 
-Review in this order:
+Review inside 24 hours to prevent unnecessary automated appeals. Review in this order:
 
-1. correctness and safety
-2. deterministic reproducibility of behavior
-3. test coverage
-4. clarity and maintainability
+1. Correctness and safety
+2. Adherence to the strict "Definition of Done" provided in the issue
+3. Deterministic reproducibility of behavior
+4. Test coverage
+5. Clarity and maintainability
 
 ## Resolution policy
 
-- if work quality is acceptable but merge is blocked for external reasons, resolve per Wave guidance so contributor effort is credited
-- move partial work to follow-up issues with clear boundaries
+- If work quality is acceptable but merge is blocked for external reasons, resolve per Wave guidance so contributor effort is credited.
+- Move partial work to follow-up issues with clear boundaries.
 
 ## Post-resolution feedback
 
-- leave practical, direct feedback
-- highlight what was done well and what should improve
-- keep comments specific to code and collaboration behavior
+- Leave practical, direct feedback.
+- Highlight what was done well and what should improve.
+- Keep comments specific to code and collaboration behavior.
