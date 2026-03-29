@@ -90,20 +90,28 @@ export default function WidgetLayoutEditor() {
           y: Math.floor(index / 3) * 2,
         },
       }));
-      setWidgets(defaultWidgets);
+      return defaultWidgets;
     };
 
-    const savedLayout = localStorage.getItem('dashboard-widget-layout');
-    if (savedLayout) {
-      try {
-        setWidgets(JSON.parse(savedLayout));
-      } catch (error) {
-        console.error('Failed to load saved layout:', error);
-        initializeDefaultLayout();
+    // Use startTransition to mark state updates as non-urgent
+    const loadLayout = () => {
+      const savedLayout = localStorage.getItem('dashboard-widget-layout');
+      if (savedLayout) {
+        try {
+          const parsedLayout = JSON.parse(savedLayout);
+          setWidgets(parsedLayout);
+        } catch (error) {
+          console.error('Failed to load saved layout:', error);
+          setWidgets(initializeDefaultLayout());
+        }
+      } else {
+        setWidgets(initializeDefaultLayout());
       }
-    } else {
-      initializeDefaultLayout();
-    }
+    };
+
+    // Schedule on next tick to avoid synchronous setState in effect
+    const timeoutId = setTimeout(loadLayout, 0);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const gridConfig: LayoutGrid = useMemo(() => ({
