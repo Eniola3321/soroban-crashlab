@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import RunHistoryTable from './RunHistoryTable';
+import RunHistoryTable from './implement-run-history-table-component';
 import RunHistoryTableSkeleton from './RunHistoryTableSkeleton';
 import Pagination from './Pagination';
 import CrashDetailDrawer from './CrashDetailDrawer';
@@ -37,6 +37,8 @@ import AddRunStatusTimeline from './add-run-status-timeline';
 import AddExportRunJson from './add-export-run-json';
 import AddExportRunCsv from './add-export-run-csv';
 import IntegrateWebhookManagerForRunEvents from './integrate-webhook-manager-for-run-events';
+import ArtifactExplorer from './add-artifact-explorer';
+import RunSeverityFilter from './add-run-filtering-by-severity';
 import AddRunTimeline from './add-run-timeline';
 import OnboardingChecklistModal from './implement-onboarding-checklist-modal-component';
 import FailureClassificationTaxonomy from './add-failure-classification-taxonomy';
@@ -117,6 +119,9 @@ function HomeContent() {
   const statusFilter = STATUS_OPTIONS.includes((searchParams.get('status') ?? 'all') as 'all' | RunStatus)
     ? ((searchParams.get('status') ?? 'all') as 'all' | RunStatus)
     : 'all';
+  const severityFilter = (['all', 'low', 'medium', 'high', 'critical'].includes(searchParams.get('severity') ?? 'all'))
+    ? (searchParams.get('severity') ?? 'all') as 'all' | RunSeverity
+    : 'all';
   const expensiveOnly = searchParams.get('expensive') === '1';
   const pageParam = Number.parseInt(searchParams.get('page') ?? '1', 10);
   const currentPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
@@ -147,6 +152,9 @@ function HomeContent() {
   const filteredRuns = useMemo(() => {
     return runs.filter((run) => {
       if (statusFilter !== 'all' && run.status !== statusFilter) {
+        return false;
+      }
+      if (severityFilter !== 'all' && run.severity !== severityFilter) {
         return false;
       }
       if (expensiveOnly && !isExpensiveRun(run)) {
@@ -587,7 +595,11 @@ function HomeContent() {
               <option value="cancelled">Cancelled</option>
             </select>
           </label>
-          <label className="inline-flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+          <RunSeverityFilter 
+            value={severityFilter} 
+            onChange={(val) => setQueryState({ severity: val === 'all' ? null : val, page: null })} 
+          />
+          <label className="inline-flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-300 group cursor-pointer">
             <input
               type="checkbox"
               checked={expensiveOnly}
@@ -646,7 +658,7 @@ function HomeContent() {
           runs={paginatedRuns} 
           onSelectRun={handleOpenRunDrawer} 
           onViewReport={setReportRun} 
-          visibleColumns={visibleColumns}
+          visibleColumns={[...visibleColumns, 'severity', 'actions']}
         />
         {dataState === 'loading' && (
           <RunHistoryTableSkeleton rows={ITEMS_PER_PAGE} />
@@ -679,6 +691,10 @@ function HomeContent() {
           totalPages={totalPages}
           onPageChange={handlePageChange}
         />
+
+        <div className="mt-12 w-full">
+          <ArtifactExplorer />
+        </div>
 
         {/* Virtualized run table — renders all filtered runs without pagination */}
         {dataState === 'success' && filteredRuns.length > 0 && (
