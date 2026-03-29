@@ -85,14 +85,28 @@ export function useDarkMode(): {
     // Support both addEventListener and deprecated addListener
     if (typeof mq.addEventListener === "function") {
       mq.addEventListener("change", handler as EventListener);
-    } else if (typeof (mq as any).addListener === "function") {
-      (mq as any).addListener(handler);
+    } else {
+      // Some TypeScript DOM libs don't include addListener/removeListener on MediaQueryList;
+      // create a narrowed type that declares them as optional instead of using `any`.
+      const mqWithListener = mq as MediaQueryList & {
+        addListener?: (l: (e: MediaQueryListEvent) => void) => void;
+        removeListener?: (l: (e: MediaQueryListEvent) => void) => void;
+      };
+      if (typeof mqWithListener.addListener === "function") {
+        mqWithListener.addListener(handler);
+      }
     }
     return () => {
       if (typeof mq.removeEventListener === "function") {
         mq.removeEventListener("change", handler as EventListener);
-      } else if (typeof (mq as any).removeListener === "function") {
-        (mq as any).removeListener(handler);
+      } else {
+        const mqWithListener = mq as MediaQueryList & {
+          addListener?: (l: (e: MediaQueryListEvent) => void) => void;
+          removeListener?: (l: (e: MediaQueryListEvent) => void) => void;
+        };
+        if (typeof mqWithListener.removeListener === "function") {
+          mqWithListener.removeListener(handler);
+        }
       }
     };
   }, []);
